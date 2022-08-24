@@ -10,6 +10,7 @@ A custom suite of Twig filters for HTML manipulation
 [![Stargazers][stars-img]][stars-url]
 [![Issues][issues-img]][issues-url]
 [![License][license-img]][license-url]
+[![Version][packagist-img]][packagist-url]
 [![CI][workflow-ci-img]][workflow-ci-url]
 [![Coverage][coverage-ci-img]][coverage-ci-url]
 
@@ -163,3 +164,5 @@ See [LICENSE][] for more information.
 [workflow-ci-url]:  https://github.com/ocubom/twig-html-extension/actions/
 [coverage-ci-img]:  https://img.shields.io/codecov/c/github/ocubom/twig-html-extension.svg?logo=codecov&logoColor=%23fefefe&style=for-the-badge&token=NQOE5BY6MX
 [coverage-ci-url]:  https://app.codecov.io/gh/ocubom/twig-html-extension
+[packagist-img]:    https://img.shields.io/packagist/v/ocubom/twig-html-extension.svg?logo=packagist&logoColor=%23fefefe&style=for-the-badge
+[packagist-url]:    https://packagist.org/packages/ocubom/twig-html-extension
