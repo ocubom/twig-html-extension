@@ -1,0 +1,13 @@
+--TEST--
+clean HTML Attributes with closure sorting
+--TEMPLATE--
+{% apply html_attributes('strcmp') %}
+    no-js         no-testing100
+    app icons Controller testing100 homepage
+    testing20 app
+    no-Icons
+{% endapply %}
+--DATA--
+return []
+--EXPECT--
+Controller app homepage icons no-Icons no-js no-testing100 testing100 testing20

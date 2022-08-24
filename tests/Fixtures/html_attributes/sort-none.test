@@ -1,0 +1,13 @@
+--TEST--
+clean HTML Attributes without sorting
+--TEMPLATE--
+{% apply html_attributes('none') %}
+    no-js         no-testing100
+    app icons Controller testing100 homepage
+    testing20 app
+    no-Icons
+{% endapply %}
+--DATA--
+return []
+--EXPECT--
+no-js no-testing100 app icons Controller testing100 homepage testing20 no-Icons

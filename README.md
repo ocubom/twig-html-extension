@@ -77,6 +77,30 @@ Just register the Twig extension:
 ```php
 $twig = new \Twig\Environment();
 $twig->addExtension(new \Ocubom\Twig\Extension\HtmlExtension());
+$thig->addRuntimeLoader(use Twig\RuntimeLoader\FactoryRuntimeLoader([
+    \Ocubom\Twig\Extension\HtmlAttributesRuntime::class => function() {
+        return new \Ocubom\Twig\Extension\HtmlAttributesRuntime();
+    },
+    \Ocubom\Twig\Extension\HtmlCompressRuntime::class => function() {
+        return new \Ocubom\Twig\Extension\HtmlCompressRuntime();
+    },
+]));
+
+// You can also dynamically create a RuntimeLoader 
+$twig->addRuntimeLoader(new class() implements RuntimeLoaderInterface {
+    public function load($class)
+    {
+        if (\Ocubom\Twig\Extension\HtmlAttributesRuntime::class === $class) {
+            return new \Ocubom\Twig\Extension\HtmlAttributesRuntime();
+        }
+        
+        if (\Ocubom\Twig\Extension\HtmlCompressRuntime::class === $class) {
+            return new \Ocubom\Twig\Extension\HtmlCompressRuntime();
+        }
+        
+        return null;
+    }
+});
 ```
 
 _For more examples, please refer to the [Documentation](https://github.com/ocubom/twig-html-extension)._

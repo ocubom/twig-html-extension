@@ -12,7 +12,29 @@
 namespace Ocubom\Twig\Extension;
 
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
 class HtmlExtension extends AbstractExtension
 {
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter(
+                'html_attributes',
+                [HtmlAttributesRuntime::class, '__invoke'],
+                [
+                    'is_safe' => ['html'],
+                ]
+            ),
+            new TwigFilter(
+                'html_compress',
+                [HtmlCompressRuntime::class, '__invoke'],
+                [
+                    'is_safe' => ['html'],
+                    'needs_environment' => true,
+                ]
+            ),
+
+        ];
+    }
 }
