@@ -34,7 +34,6 @@ class HtmlExtension extends AbstractExtension
                     'needs_environment' => true,
                 ]
             ),
-
         ];
     }
 }

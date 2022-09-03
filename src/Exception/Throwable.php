@@ -13,5 +13,4 @@ namespace Ocubom\Twig\Extension\Exception;
 
 interface Throwable extends \Throwable
 {
-
 }

@@ -35,10 +35,26 @@ return (new PhpCsFixer\Config())
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreVCSIgnored(true)
-            //->append([__FILE__])
+            ->append([__FILE__])
     )
     ->setRules([
+        // Rulesets
+        '@Symfony' => true,
+        '@Symfony:risky' => false,
+        // Alias
+        'modernize_strpos' => true,
+        // Class Notation
+        'protected_to_private' => false,
+        'visibility_required' => ['elements' => ['method', 'property']],
+        // Comment
         'header_comment' => ['header' => $header, 'separate' => 'both'],
+        // Constant Notation
+        'native_constant_invocation' => ['strict' => false],
+        // Function Notation
+        'nullable_type_declaration_for_default_null_value' => ['use_nullable_type_declaration' => false],
+        'single_line_throw' => false,
+        // PHPdoc
+        'no_superfluous_phpdoc_tags' => ['remove_inheritdoc' => true],
     ])
     ->setCacheFile(tempnam(sys_get_temp_dir(), 'php-cs-fixer'))
 ;

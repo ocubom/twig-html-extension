@@ -24,11 +24,11 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
     /**
      * Sanitize HTML attributes option.
      *
-     * @param string $text The input string to process
-     * @param string|callable $sort The criteria used to sort elements
-     * @param string $separator The separator between elements
-     * @param string $split The regular expression used to extract elements
-     * @param string $prefix The prefix used to negate the element (used with SORT_SPECIAL)
+     * @param string          $text      The input string to process
+     * @param string|callable $sort      The criteria used to sort elements
+     * @param string          $separator The separator between elements
+     * @param string          $split     The regular expression used to extract elements
+     * @param string          $prefix    The prefix used to negate the element (used with SORT_SPECIAL)
      */
     public function __invoke(
         string $text,
@@ -36,8 +36,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
         string $separator = ' ',
         string $split = '@\s+@s',
         string $prefix = 'no-'
-    ): string
-    {
+    ): string {
         $values = array_reduce(
             preg_split($split ?? '@\s+@s', $text),
             function ($values, $value) {
@@ -51,7 +50,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
 
         switch ($sort) {
             case self::SORT_NONE:
-            case 'none';
+            case 'none':
                 // Do not sort
                 break;
 
@@ -70,10 +69,10 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
                 $length = mb_strlen($prefix);
                 uasort($values, function ($x, $y) use ($prefix, $length) {
                     if (!strncasecmp($prefix, $x, $length)) {
-                        $x = mb_substr($x, $length) . ' ' . $prefix;
+                        $x = mb_substr($x, $length).' '.$prefix;
                     }
                     if (!strncasecmp($prefix, $y, $length)) {
-                        $y = mb_substr($y, $length) . ' ' . $prefix;
+                        $y = mb_substr($y, $length).' '.$prefix;
                     }
 
                     return strnatcasecmp($x, $y);
@@ -89,7 +88,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
 
         return trim(
             implode($separator ?? ' ', $values),
-            " \t\n\r\0\x0B" . $separator
+            " \t\n\r\0\x0B".$separator
         );
     }
 }

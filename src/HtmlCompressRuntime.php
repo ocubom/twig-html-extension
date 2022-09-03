@@ -12,7 +12,6 @@
 namespace Ocubom\Twig\Extension;
 
 use Ocubom\Twig\Extension\Exception\InvalidArgumentException;
-use Ocubom\Twig\Extension\Exception\RuntimeException;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -46,9 +45,9 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     private ?HtmlCompressorInterface $compressor = null;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param bool $force Always apply compression
+     * @param bool                                 $force      Always apply compression
      * @param HtmlCompressorInterface|int|callable $compressor The compressor level, a compressor instance or factory callable
      */
     public function __construct(bool $force = false, $compressor = self::COMPRESSOR_SMALLEST)
@@ -93,7 +92,7 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
         if (is_string($compressor)) {
             $compressor = strtolower($compressor);
 
-            if (0 === strpos($compressor, 'construct')) {
+            if (str_starts_with($compressor, 'construct')) {
                 $compressor = substr($compressor, 9);
             }
         }
@@ -104,6 +103,6 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
             };
         }
 
-        return [Factory::class, 'construct' . $compressor];
+        return [Factory::class, 'construct'.$compressor];
     }
 }

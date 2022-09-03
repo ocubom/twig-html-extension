@@ -13,5 +13,4 @@ namespace Ocubom\Twig\Extension\Exception;
 
 class InvalidArgumentException extends \InvalidArgumentException implements Throwable
 {
-
 }

@@ -28,6 +28,7 @@
         }
     },
     "require": {
+        "php": ">=7.4",
         "twig/twig": "^2.7|^3.0",
         "wyrihaximus/html-compress": "^4.0"
     },
