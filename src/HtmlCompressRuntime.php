@@ -26,7 +26,7 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     public const COMPRESSOR_NORMAL = 2;
     public const COMPRESSOR_SMALLEST = 3;
 
-    public const FACTORIES = [
+    private const FACTORIES = [
         // By COMPRESSOR_*
         null,
         [Factory::class, 'constructfastest'],
@@ -47,8 +47,8 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     /**
      * Constructor.
      *
-     * @param bool                                 $force      Always apply compression
-     * @param HtmlCompressorInterface|int|callable $compressor The compressor level, a compressor instance or factory callable
+     * @param bool                                        $force      Always apply compression
+     * @param HtmlCompressorInterface|callable|int|string $compressor The compressor level, a compressor instance or factory callable
      */
     public function __construct(bool $force = false, $compressor = self::COMPRESSOR_SMALLEST)
     {
@@ -57,52 +57,64 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
         if ($compressor instanceof HtmlCompressorInterface) {
             $this->compressor = $compressor;
         } else {
-            $factory = self::createFactory($compressor);
-
-            if (is_callable($factory)) {
+            try {
+                $factory = is_callable($compressor) ? $compressor : self::createFactory($compressor);
                 $this->compressor = $factory();
-            } else {
-                throw new InvalidArgumentException(sprintf('Unable to build "%s" HTML compressor ', $compressor));
+            } catch (\Throwable $exc) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Unable to build "%s" HTML compressor ',
+                        is_scalar($compressor) ? $compressor : 'callable',
+                    ),
+                    0,
+                    $exc
+                );
             }
         }
     }
 
     public function __invoke(Environment $twig, string $html, bool $force = false): string
     {
-        if (null === $this->compressor || ($twig->isDebug() && !$this->force && !$force)) {
-            // Do nothing as no compressor is configured or no compression is requested
-            return $html;
-        }
+        if (null !== $this->compressor && (!$twig->isDebug() || $this->force || $force)) {
+            // Compress
+            $html = $this->compressor->compress($html);
 
-        $html = $this->compressor->compress($html);
-        if ($twig->isDebug() && class_exists(WebProfilerBundle::class)) {
             // Add end body tag to allow profiler inject its code
-            $html .= '</body>';  // @codeCoverageIgnore
+            if ($twig->isDebug() && class_exists(WebProfilerBundle::class)) {
+                $html .= '</body>'; // @codeCoverageIgnore
+            }
         }
 
         return $html;
     }
 
-    private static function createFactory($compressor)
+    /**
+     * @param int|string $compressor
+     */
+    private static function createFactory($compressor): callable
     {
-        if (is_callable($compressor)) {
-            return $compressor;
-        }
-
-        if (is_string($compressor)) {
-            $compressor = strtolower($compressor);
-
-            if (str_starts_with($compressor, 'construct')) {
-                $compressor = substr($compressor, 9);
-            }
-        }
-
-        if (array_key_exists($compressor, self::FACTORIES)) {
-            return self::FACTORIES[$compressor] ?? function () {
+        $key = is_string($compressor) ? self::cleanValue($compressor) : $compressor;
+        if (array_key_exists($key, self::FACTORIES)) {
+            return self::FACTORIES[$key] ?? function () {
                 return null;
             };
         }
 
-        return [Factory::class, 'construct'.$compressor];
+        return function () use ($key): HtmlCompressorInterface {
+            $factory = [Factory::class, 'construct'.$key];
+
+            return $factory();
+        };
+    }
+
+    private static function cleanValue(string $name): string
+    {
+        $value = strtolower($name);
+
+        if (str_starts_with($value, 'construct')) {
+            $value = substr($value, 9);
+        }
+
+        return $value;
     }
 }

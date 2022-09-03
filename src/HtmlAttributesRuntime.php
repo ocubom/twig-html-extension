@@ -16,10 +16,10 @@ use Twig\Extension\RuntimeExtensionInterface;
 class HtmlAttributesRuntime implements RuntimeExtensionInterface
 {
     // HTML attributes sorting criteria
-    public const SORT_NONE = 'none';             // Do not sort
-    public const SORT_DEFAULT = 'strcasecmp';    // Use default sorting method
-    public const SORT_NATURAL = 'strnatcasecmp'; // Use natural case for sorting
-    public const SORT_SPECIAL = 'no-*';          // Use natural case and consider no-class as class
+    public const SORT_NONE = 'none';    // Do not sort
+    public const SORT_DEFAULT = 'default'; // Use default sorting method
+    public const SORT_NATURAL = 'natural'; // Use natural case for sorting
+    public const SORT_SPECIAL = 'special'; // Use natural case and consider no-class as class
 
     /**
      * Sanitize HTML attributes option.
@@ -37,46 +37,37 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
         string $split = '@\s+@s',
         string $prefix = 'no-'
     ): string {
-        $values = array_reduce(
-            preg_split($split ?? '@\s+@s', $text),
-            function ($values, $value) {
-                $val = trim($value);
-                $values[$val] = $val;
-
-                return $values;
-            },
-            []
-        );
+        $values = preg_split($split, $text);
+        $values = array_combine($values, $values);
 
         switch ($sort) {
             case self::SORT_NONE:
-            case 'none':
                 // Do not sort
                 break;
 
             case self::SORT_DEFAULT:
-            case 'default':
                 uasort($values, 'strcasecmp');
                 break;
 
             case self::SORT_NATURAL:
-            case 'natural':
                 uasort($values, 'strnatcasecmp');
                 break;
 
             case self::SORT_SPECIAL:
-            case 'special':
                 $length = mb_strlen($prefix);
-                uasort($values, function ($x, $y) use ($prefix, $length) {
-                    if (!strncasecmp($prefix, $x, $length)) {
-                        $x = mb_substr($x, $length).' '.$prefix;
-                    }
-                    if (!strncasecmp($prefix, $y, $length)) {
-                        $y = mb_substr($y, $length).' '.$prefix;
-                    }
+                $values = array_combine(
+                    array_map(
+                        function (string $item) use ($prefix, $length) {
+                            return strncasecmp($prefix, $item, $length)
+                                ? $item
+                                : mb_substr($item, $length).' '.$prefix;
+                        },
+                        $values
+                    ),
+                    $values
+                );
 
-                    return strnatcasecmp($x, $y);
-                });
+                uksort($values, 'strnatcasecmp');
                 break;
 
             default:
@@ -87,7 +78,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
         }
 
         return trim(
-            implode($separator ?? ' ', $values),
+            implode($separator, $values),
             " \t\n\r\0\x0B".$separator
         );
     }
