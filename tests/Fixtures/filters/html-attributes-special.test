@@ -1,7 +1,7 @@
 --TEST--
-clean HTML Attributes without sorting
+html_attributes special sorting ("no-*" = "* no")
 --TEMPLATE--
-{% apply html_attributes('none') %}
+{% apply html_attributes('special') %}
     no-js         no-testing100
     app icons Controller testing100 homepage
     testing20 app
@@ -10,4 +10,4 @@ clean HTML Attributes without sorting
 --DATA--
 return []
 --EXPECT--
-no-js no-testing100 app icons Controller testing100 homepage testing20 no-Icons
+app Controller homepage icons no-Icons no-js testing20 testing100 no-testing100

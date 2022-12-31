@@ -44,4 +44,18 @@ final class HtmlExtensionTest extends IntegrationTestCase
             ]),
         ];
     }
+
+    public function getTests($name, $legacyTests = false)
+    {
+        return array_reduce(
+            parent::getTests($name, $legacyTests),
+            function ($tests, $test) {
+                // Change key to be more descriptive
+                $tests[sprintf('[% 3d] %s', count($tests), $test[1])] = $test;
+
+                return $tests;
+            },
+            []
+        );
+    }
 }

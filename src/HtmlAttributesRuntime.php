@@ -16,10 +16,10 @@ use Twig\Extension\RuntimeExtensionInterface;
 class HtmlAttributesRuntime implements RuntimeExtensionInterface
 {
     // HTML attributes sorting criteria
-    public const SORT_NONE = 'none';    // Do not sort
-    public const SORT_DEFAULT = 'default'; // Use default sorting method
-    public const SORT_NATURAL = 'natural'; // Use natural case for sorting
-    public const SORT_SPECIAL = 'special'; // Use natural case and consider no-class as class
+    public const SORT_NONE = 'none';                // Do not sort
+    public const SORT_INSENSITIVE = 'insensitive';  // Use case-insensitive sorting
+    public const SORT_NATURAL = 'natural';          // Use natural sorting
+    public const SORT_SPECIAL = 'special';          // Use natural sorting and consider no-class as class
 
     /**
      * Sanitize HTML attributes option.
@@ -45,7 +45,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
                 // Do not sort
                 break;
 
-            case self::SORT_DEFAULT:
+            case self::SORT_INSENSITIVE:
                 uasort($values, 'strcasecmp');
                 break;
 

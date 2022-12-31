@@ -1,7 +1,7 @@
 --TEST--
-clean HTML Attributes with default (strcasecmp) sorting
+html_attributes no sort
 --TEMPLATE--
-{% apply html_attributes('default') %}
+{% apply html_attributes('none') %}
     no-js         no-testing100
     app icons Controller testing100 homepage
     testing20 app
@@ -10,4 +10,4 @@ clean HTML Attributes with default (strcasecmp) sorting
 --DATA--
 return []
 --EXPECT--
-app Controller homepage icons no-Icons no-js no-testing100 testing100 testing20
+no-js no-testing100 app icons Controller testing100 homepage testing20 no-Icons

@@ -28,10 +28,10 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
 
     private const FACTORIES = [
         // By COMPRESSOR_*
-        null,
-        [Factory::class, 'constructfastest'],
-        [Factory::class, 'construct'],
-        [Factory::class, 'constructsmallest'],
+        self::COMPRESSOR_NONE => null,
+        self::COMPRESSOR_FASTEST => [Factory::class, 'constructfastest'],
+        self::COMPRESSOR_NORMAL => [Factory::class, 'construct'],
+        self::COMPRESSOR_SMALLEST => [Factory::class, 'constructsmallest'],
         // By sort name
         '' => null,
         'none' => null,

@@ -1,7 +1,7 @@
 --TEST--
-clean HTML Attributes with closure sorting
+html_attributes case-insensitive sort (strcasecmp)
 --TEMPLATE--
-{% apply html_attributes('strcmp') %}
+{% apply html_attributes('insensitive') %}
     no-js         no-testing100
     app icons Controller testing100 homepage
     testing20 app
@@ -10,4 +10,4 @@ clean HTML Attributes with closure sorting
 --DATA--
 return []
 --EXPECT--
-Controller app homepage icons no-Icons no-js no-testing100 testing100 testing20
+app Controller homepage icons no-Icons no-js no-testing100 testing100 testing20

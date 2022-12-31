@@ -1,5 +1,5 @@
 --TEST--
-clean HTML Attributes with natural (strnatcasecmp) sorting
+html_attributes natural sort (strnatcasecmp)
 --TEMPLATE--
 {% apply html_attributes('natural') %}
     no-js         no-testing100
