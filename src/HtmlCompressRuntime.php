@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension;
 
-use Ocubom\Twig\Extension\Exception\InvalidArgumentException;
+use Ocubom\Twig\Extension\Html\Exception\InvalidArgumentException;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;

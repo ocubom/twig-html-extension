@@ -9,8 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Exception;
+namespace Ocubom\Twig\Extension\Html\Exception;
 
-class InvalidArgumentException extends \InvalidArgumentException implements Throwable
+interface Throwable extends \Throwable
 {
 }

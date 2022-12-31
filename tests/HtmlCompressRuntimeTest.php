@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Tests;
 
-use Ocubom\Twig\Extension\Exception\InvalidArgumentException;
+use Ocubom\Twig\Extension\Html\Exception\InvalidArgumentException;
 use Ocubom\Twig\Extension\HtmlCompressRuntime;
 use PHPUnit\Framework\TestCase;
 use Twig\Extension\RuntimeExtensionInterface;
