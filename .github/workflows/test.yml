@@ -89,16 +89,17 @@ jobs:
 
     code-coverage:
         name: Code Coverage (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
-        runs-on: ubuntu-latest # Code Coverage only supported on Linux
+        runs-on: ${{ matrix.operating-system }}
+        continue-on-error: ${{ matrix.experimental }}
         needs:
             - test-suite
         strategy:
             fail-fast: false
             matrix:
                 operating-system:
-                    - ubuntu-latest
+                    - ubuntu-latest # Code Coverage only supported on Linux
                 php-version:
-                    - '8.1'
+                    - '8.1'         # Used fastest stable version
                 experimental: [false]
 
         steps:
