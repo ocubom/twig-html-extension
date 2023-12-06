@@ -32,7 +32,7 @@ class HtmlAttributesRuntime implements RuntimeExtensionInterface
      */
     public function __invoke(
         string $text,
-               $sort = self::SORT_SPECIAL,
+        $sort = self::SORT_SPECIAL,
         string $separator = ' ',
         string $split = '@\s+@s',
         string $prefix = 'no-'
