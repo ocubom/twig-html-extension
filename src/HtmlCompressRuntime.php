@@ -12,6 +12,7 @@
 namespace Ocubom\Twig\Extension;
 
 use Ocubom\Twig\Extension\Html\Exception\InvalidArgumentException;
+use Ocubom\Twig\Extension\Html\Exception\Throwable;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -20,6 +21,8 @@ use WyriHaximus\HtmlCompress\HtmlCompressorInterface;
 
 class HtmlCompressRuntime implements RuntimeExtensionInterface
 {
+    public const DEFAULT_COMPRESSOR = self::COMPRESSOR_SMALLEST;
+
     // Factory compression levels
     public const COMPRESSOR_NONE = 0;
     public const COMPRESSOR_FASTEST = 1;
@@ -29,15 +32,18 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     private const FACTORIES = [
         // By COMPRESSOR_*
         self::COMPRESSOR_NONE => null,
-        self::COMPRESSOR_FASTEST => [Factory::class, 'constructfastest'],
+        self::COMPRESSOR_FASTEST => [Factory::class, 'constructFastest'],
         self::COMPRESSOR_NORMAL => [Factory::class, 'construct'],
-        self::COMPRESSOR_SMALLEST => [Factory::class, 'constructsmallest'],
-        // By sort name
+        self::COMPRESSOR_SMALLEST => [Factory::class, 'constructSmallest'],
+        // By name
         '' => null,
         'none' => null,
-        'fastest' => [Factory::class, 'constructfastest'],
+        'fastest' => [Factory::class, 'constructFastest'],
         'normal' => [Factory::class, 'construct'],
-        'smallest' => [Factory::class, 'constructsmallest'],
+        'smallest' => [Factory::class, 'constructSmallest'],
+        // Booleans
+        true => [Factory::class, 'constructSmallest'],
+        false => null,
     ];
 
     private bool $force;
@@ -47,29 +53,45 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     /**
      * Constructor.
      *
-     * @param bool                                        $force      Always apply compression
-     * @param HtmlCompressorInterface|callable|int|string $compressor The compressor level, a compressor instance or factory callable
+     * @param bool                                                  $force      Always apply compression
+     * @param HtmlCompressorInterface|callable|int|string|bool|null $compressor The compressor level, a compressor instance or factory callable
      */
-    public function __construct(bool $force = false, $compressor = self::COMPRESSOR_SMALLEST)
+    public function __construct(bool $force = false, $compressor = self::DEFAULT_COMPRESSOR)
     {
-        $this->force = $force;
+        try {
+            $this->force = $force;
 
-        if ($compressor instanceof HtmlCompressorInterface) {
-            $this->compressor = $compressor;
-        } else {
-            try {
-                $factory = is_callable($compressor) ? $compressor : self::createFactory($compressor);
-                $this->compressor = $factory();
-            } catch (\Throwable $exc) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Unable to build "%s" HTML compressor ',
-                        is_scalar($compressor) ? $compressor : 'callable',
-                    ),
-                    0,
-                    $exc
-                );
+            if (null === $compressor) {
+                $this->compressor = null;
+            } elseif ($compressor instanceof HtmlCompressorInterface) {
+                $this->compressor = $compressor;
+            } elseif (is_callable($compressor)) {
+                $this->compressor = $compressor();
+            } else {
+                assert(is_scalar($compressor));
+                $factory = self::normalizeCompressorName($compressor);
+                assert(is_scalar($factory));
+                if (array_key_exists($factory, self::FACTORIES)) {
+                    $factory = self::FACTORIES[$factory];
+
+                    $this->compressor = is_callable($factory) ? $factory() : $factory;
+                } else {
+                    $factory = [Factory::class, 'construct'.($factory ?? '-')];
+
+                    $this->compressor = $factory();
+                }
             }
+        } catch (Throwable $exc) {
+            throw $exc;
+        } catch (\Throwable $exc) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Unable to build "%s" HTML compressor ',
+                    is_scalar($compressor) ? $compressor : 'callable',
+                ),
+                0,
+                $exc
+            );
         }
     }
 
@@ -80,8 +102,8 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
             $html = $this->compressor->compress($html);
 
             // Add end body tag to allow profiler inject its code
-            if ($twig->isDebug() && class_exists(WebProfilerBundle::class)) {
-                $html .= '</body>'; // @codeCoverageIgnore
+            if ($twig->isDebug() && class_exists(WebProfilerBundle::class) && preg_match('/<body(\s|>)/i', $html)) {
+                $html .= '</body>';
             }
         }
 
@@ -89,32 +111,31 @@ class HtmlCompressRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * @param int|string $compressor
+     * @param int|string|bool $value
+     *
+     * @return int|string|bool
      */
-    private static function createFactory($compressor): callable
+    private static function normalizeCompressorName($value)
     {
-        $key = is_string($compressor) ? self::cleanValue($compressor) : $compressor;
-        if (array_key_exists($key, self::FACTORIES)) {
-            return self::FACTORIES[$key] ?? function () {
-                return null;
-            };
+        // Integers in range
+        if (is_int($value) || (is_string($value) && ctype_digit($value))) {
+            return max(self::COMPRESSOR_NONE, min(self::COMPRESSOR_SMALLEST, (int) $value));
         }
 
-        return function () use ($key): HtmlCompressorInterface {
-            $factory = [Factory::class, 'construct'.$key];
+        // Normalized string
+        if (is_string($value)) {
+            // Normalize key
+            $value = strtolower($value);
 
-            return $factory();
-        };
-    }
+            // Remove "construct" prefix
+            if (0 === strncmp('construct', $value, 9)) {
+                return substr($value, 9);
+            }
 
-    private static function cleanValue(string $name): string
-    {
-        $value = strtolower($name);
-
-        if (str_starts_with($value, 'construct')) {
-            $value = substr($value, 9);
+            return $value;
         }
 
-        return $value;
+        // Other values
+        return (bool) $value;
     }
 }

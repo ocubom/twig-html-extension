@@ -29,12 +29,15 @@
     },
     "require": {
         "php": ">=7.4",
-        "twig/twig": "^2.7 || ^3.0",
-        "wyrihaximus/html-compress": "^4.0"
+        "twig/twig": "^2.7|^3.0",
+        "wyrihaximus/html-compress": "^4.0",
+        "voku/html-min": "5.0.0 as 4.5.1",
+        "voku/simple_html_dom": "5.0.0 as 4.8.9"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "*",
-        "symfony/phpunit-bridge": "^4.4.9 || ^5.0.9 || ^6.0 || ^7.0"
+        "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0|^7.0|^8.0",
+        "symfony/web-profiler-bundle": "*"
     },
     "scripts": {
         "fix": "./vendor/bin/php-cs-fixer fix",

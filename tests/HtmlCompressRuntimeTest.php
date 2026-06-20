@@ -19,28 +19,35 @@ use WyriHaximus\HtmlCompress\Factory;
 
 class HtmlCompressRuntimeTest extends TestCase
 {
-    public function testCreateWithCompressorInstance()
+    public function testCreateWithCompressorInstance(): void
     {
         $runtime = new HtmlCompressRuntime(false, Factory::construct());
 
         $this->assertInstanceOf(RuntimeExtensionInterface::class, $runtime);
     }
 
-    public function testCreateWithNoneCompressor()
+    public function testCreateWithNoneCompressor(): void
     {
         $runtime = new HtmlCompressRuntime(false, 'none');
 
         $this->assertInstanceOf(RuntimeExtensionInterface::class, $runtime);
     }
 
-    public function testCreateWithConstructor()
+    public function testCreateWithNamedCompressor(): void
+    {
+        $runtime = new HtmlCompressRuntime(false, 'smallest');
+
+        $this->assertInstanceOf(RuntimeExtensionInterface::class, $runtime);
+    }
+
+    public function testCreateWithConstructor(): void
     {
         $runtime = new HtmlCompressRuntime(false, 'constructNone');
 
         $this->assertInstanceOf(RuntimeExtensionInterface::class, $runtime);
     }
 
-    public function testCreateWithCallable()
+    public function testCreateWithCallable(): void
     {
         $runtime = new HtmlCompressRuntime(false, function () {
             return Factory::construct();
@@ -49,7 +56,7 @@ class HtmlCompressRuntimeTest extends TestCase
         $this->assertInstanceOf(RuntimeExtensionInterface::class, $runtime);
     }
 
-    public function testCreateWithInvalidCompressor()
+    public function testCreateWithInvalidCompressor(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $runtime = new HtmlCompressRuntime(false, 'do not exists');

@@ -15,43 +15,51 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.2
+                    php-version: 8.4
                     ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
                     tools: vimeo/psalm
                     coverage: none
 
             -   name: Composer install
-                uses: ramsey/composer-install@v2
+                uses: ramsey/composer-install@v4
 
             -   name: Psalm
                 run: psalm --no-progress || psalm --output-format=github --no-progress
 
-    test-suite:
-        name: Test Suite (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
-        runs-on: ${{ matrix.operating-system }}
+    test:
+        name: Test PHP ${{ matrix.php }} on ${{ matrix.os }}${{ matrix.coverage && '*' || '' }}
+        runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
             matrix:
-                operating-system:
+                os:
                     - macos-latest
                     - ubuntu-latest
                     - windows-latest
-                php-version:
+                php:
+                    - '8.5'
+                    - '8.4'
                     - '8.3'
                     - '8.2'
                     - '8.1'
                     - '8.0'
                     - '7.4'
                 include:
-                    ## Generate coverage report
-                    - php-version: '8.2'
-                      operating-system: ubuntu-latest
+                    ## Generate coverage report on linux
+                    - php: '8.4'
+                      os: ubuntu-latest
                       coverage: pcov
+                    ## Enable blocked packages for compatibility
+                    - php: '8.0'
+                      composer-options: --no-blocking
+                    - php: '7.4'
+                      composer-options: --no-blocking
+                      #dependencies: lowest
 
         steps:
             -   name: Configure git to avoid issues with line endings
@@ -66,7 +74,7 @@ jobs:
                     echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
 
             -   name: Checkout
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
                 with:
                     # @see RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
                     fetch-depth: ${{ matrix.coverage && 10 || 1 }}
@@ -74,16 +82,18 @@ jobs:
             -   name: Install PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: ${{ matrix.php-version }}
+                    php-version: ${{ matrix.php }}
                     ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
                     tools: phpunit-bridge
-                    coverage: ${{ matrix.coverage }}
+                    coverage: ${{ matrix.coverage || 'none' }}
 
             -   name: Composer install
-                uses: ramsey/composer-install@v2
+                uses: ramsey/composer-install@v4
+                env:
+                    SYMFONY_REQUIRE: ${{ matrix.symfony && matrix.symfony || '' }}
                 with:
                     composer-options: ${{ matrix.composer-options }}
-                    dependency-versions: ${{ matrix.dependency-versions }}
+                    dependency-versions: ${{ matrix.dependencies }}
 
             -   name: Run test suite
                 run: simple-phpunit ${{ matrix.coverage && ' --coverage-clover=coverage.xml ' || '' }}

@@ -22,4 +22,4 @@ html_compress
 --DATA--
 return []
 --EXPECT--
-<!DOCTYPE html><html lang=en><head><meta charset=utf-8> <body><main><p> Hello World! </main>
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8><body><main><p> Hello World! </p> </main>
